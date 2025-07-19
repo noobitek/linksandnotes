@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome CDN for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
         body {
@@ -19,12 +22,12 @@
             background: #2d3748;
             border: 1px solid #4b5563;
             transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-            cursor: pointer; /* Add cursor pointer to indicate clickability */
-            position: relative; /* Added for absolute positioning of icons */
-            padding-top: 20px; /* Reduced padding-top */
-            padding-left: 40px; /* Keep original padding-left */
-            padding-right: 24px; /* Keep original padding-right */
-            padding-bottom: 12px; /* Reduced padding-bottom */
+            cursor: pointer;
+            position: relative;
+            padding-top: 20px;
+            padding-left: 40px;
+            padding-right: 24px;
+            padding-bottom: 12px;
         }
         .link-card:hover {
             transform: translateY(-5px);
@@ -57,7 +60,7 @@
         }
         .delete-btn {
             transition: color 0.3s ease;
-            font-size: 1.5rem; /* Made delete icon bigger */
+            font-size: 1.5rem;
         }
         .delete-btn:hover {
             color: #ef4444;
@@ -66,9 +69,8 @@
             color: #94a3b8;
             word-break: break-word;
             overflow-wrap: break-word;
-            max-height: 60px; /* Fixed height for notes within the card */
+            max-height: 60px;
         }
-        /* New class for scrollable notes */
         .notes-text.scrollable {
             overflow-y: auto;
         }
@@ -87,45 +89,41 @@
         .modal.show {
             display: flex;
         }
-        /* Style for the notes display in the popup */
         .notes-display {
-            white-space: pre-wrap; /* Preserves whitespace and line breaks */
-            max-height: 400px; /* Increased height for long notes */
-            overflow-y: auto; /* Add scroll if notes are too long */
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
             padding: 10px;
             background: #1e293b;
             border-radius: 8px;
             color: #e2e8f0;
         }
-
-        /* Specific styling for the notes modal container to make it larger */
         #notes-modal .form-container {
-            max-width: 600px; /* Increased max-width for the notes modal */
-            width: 90%; /* Ensure it's responsive */
+            max-width: 600px;
+            width: 90%;
         }
         .icon-group {
-            position: absolute; /* Position icons absolutely */
-            top: 0px; /* Moved closer to top */
-            left: 10px; /* Distance from left */
-            z-index: 10; /* Ensure icons are above other content */
+            position: absolute;
+            top: 0px;
+            left: 10px;
+            z-index: 10;
             display: flex;
-            flex-direction: column; /* Stack icons vertically */
-            align-items: flex-start; /* Align icons to the start (left) */
-            gap: 5px; /* Adjust space between delete and edit icons */
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
         }
         .edit-icon {
             cursor: pointer;
-            color: #94a3b8; /* Default color for edit icon */
+            color: #94a3b8;
             transition: color 0.3s ease;
         }
         .edit-icon:hover {
-            color: #6366f1; /* Hover color for edit icon */
+            color: #6366f1;
         }
-        /* Style for containing long titles */
         .link-card h3 {
             word-break: break-word;
             overflow-wrap: break-word;
-            overflow: hidden; /* Hide overflowing text */
+            overflow: hidden;
         }
     </style>
 </head>
@@ -133,7 +131,7 @@
     <div class="text-center mb-10">
         <h1 class="text-4xl font-bold text-white">لینک‌های مفید من</h1>
         <p class="text-lg text-gray-300 mt-2">مجموعه‌ای از منابع مورد علاقه من</p>
-        <p id="user-id-display" class="text-sm text-gray-400 mt-2">Loading user ID...</p>
+        <p id="user-id-display" class="text-sm text-gray-400 mt-1">Initializing Supabase...</p>
     </div>
     <div class="max-w-md w-full mb-6 flex gap-2">
         <input id="search-input" type="text" placeholder="جستجوی لینک‌ها..." class="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right bg-[#1e293b] border-[#4b5563]">
@@ -188,41 +186,25 @@
         </div>
     </div>
 
-    <div id="loading-spinner" class="text-white text-lg mt-10" style="display: none;">
-        در حال بارگذاری...
-    </div>
-
     <div id="link-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full">
         <!-- Links will be dynamically added here, grouped by category -->
     </div>
+    <!-- Custom message box element -->
+    <div id="message-box" class="hidden"></div>
+
     <script type="module">
-        // Firebase imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+        // Replace with your actual Supabase URL and Anon Key
+        const SUPABASE_URL = 'https://qucemgbfrbjckduvutho.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1Y2VtZ2JmcmJqY2tkdXZ1dGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5Mjg4MjcsImV4cCI6MjA2ODUwNDgyN30.cOKm96oCK-L_hSwhuuK3wbrZJ4AbzDHtyKIKaRTd_f4';
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBDtYnagQJDueVROrE_q9gXuk50IH8flzM",
-            authDomain: "linkandnotes.firebaseapp.com",
-            projectId: "linkandnotes",
-            storageBucket: "linkandnotes.firebasestorage.app",
-            messagingSenderId: "211601196274",
-            appId: "1:211601196274:web:4660b42dbe23259103bc6b"
-        };
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        let userId = null;
-        let links = [];
-        let categories = ["عمومی", "کاری", "شخصی"]; // Default categories
-        const defaultCategories = ["عمومی", "کاری", "شخصی"]; // For checking if category is default
+        window.currentUserId = null;
+        window.links = [];
+        window.categories = ["عمومی", "کاری", "شخصی"]; // Default categories
+        window.defaultCategories = ["یادداشتها", "عمومی", "کاری", "شخصی"];
 
         // DOM elements
-        const linkContainer = document.getElementById('link-container');
         const titleInput = document.getElementById('link-title');
         const urlInput = document.getElementById('link-url');
         const categorySelect = document.getElementById('link-category');
@@ -235,97 +217,128 @@
         const formModalTitle = document.getElementById('form-modal-title');
         const searchInput = document.getElementById('search-input');
         const searchButton = document.getElementById('search-btn');
-
         const notesModal = document.getElementById('notes-modal');
-        const notesModalTitle = document.getElementById('notes-modal-title');
         const notesModalContent = document.getElementById('notes-modal-content');
         const closeNotesModalButton = document.getElementById('close-notes-modal');
         const saveNotesModalButton = document.getElementById('save-notes-modal');
-
         const confirmModal = document.getElementById('confirm-modal');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const userIdDisplay = document.getElementById('user-id-display');
-        const loadingSpinner = document.getElementById('loading-spinner');
 
-        let currentLinkDocId = null; // To keep track of the Firestore document ID being edited or deleted
+        let currentLinkToEditId = null;
         let isEditMode = false;
+        let currentLinkToDeleteId = null;
+        let currentLinkToDeleteCategory = null;
 
-        // Show loading spinner
-        loadingSpinner.style.display = 'block';
-
-        // Authenticate and set up Firestore listeners
-        onAuthStateChanged(auth, async (user) => {
+        // --- Supabase Authentication and Data Fetching ---
+        async function initializeSupabase() {
             try {
-                if (user) {
-                    userId = user.uid;
-                } else {
-                    // Sign in anonymously if no user is authenticated
-                    await signInAnonymously(auth);
-                    userId = auth.currentUser.uid;
-                }
-                userIdDisplay.textContent = `User ID: ${userId}`;
+                const { data, error } = await supabase.auth.signInAnonymously();
+                if (error) throw error;
                 
-                // Set up real-time listeners for links and categories
-                setupFirestoreListeners();
+                window.currentUserId = data.user.id;
+                userIdDisplay.textContent = `User ID: ${window.currentUserId}`;
+                console.log("Supabase initialized and user signed in anonymously:", window.currentUserId);
+
+                setupSupabaseListeners();
+                fetchInitialData(); // Fetch initial data after auth and listeners are set up
 
             } catch (error) {
-                console.error("Authentication error:", error);
-                showMessageBox(`خطای احراز هویت: ${error.message}`, 'error');
-                userIdDisplay.textContent = `خطا در بارگذاری شناسه کاربری`;
-                loadingSpinner.style.display = 'none';
+                console.error("Error initializing Supabase or signing in:", error.message);
+                userIdDisplay.textContent = `Error: ${error.message}`;
+                showMessageBox('خطا در اتصال به پایگاه داده.', 'error');
             }
-        });
-
-        function setupFirestoreListeners() {
-            // Listen for categories
-            onSnapshot(collection(db, `users/${userId}/categories`), (snapshot) => {
-                const fetchedCategories = snapshot.docs.map(doc => doc.data().name);
-                // Merge with default categories to ensure they are always present
-                categories = [...new Set([...defaultCategories, ...fetchedCategories])];
-                renderCategories();
-            }, (error) => {
-                console.error("Error fetching categories:", error);
-                showMessageBox(`خطا در بارگذاری دسته‌بندی‌ها: ${error.message}`, 'error');
-            });
-
-            // Listen for links
-            onSnapshot(collection(db, `users/${userId}/links`), (snapshot) => {
-                links = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderLinks(searchInput.value);
-                loadingSpinner.style.display = 'none'; // Hide spinner once data is loaded
-            }, (error) => {
-                console.error("Error fetching links:", error);
-                showMessageBox(`خطا در بارگذاری لینک‌ها: ${error.message}`, 'error');
-                loadingSpinner.style.display = 'none';
-            });
         }
 
-        // Render categories in dropdown
-        function renderCategories() {
+        async function fetchInitialData() {
+            // Fetch links
+            const { data: linksData, error: linksError } = await supabase
+                .from('links')
+                .select('*')
+                .eq('user_id', window.currentUserId); // Ensure we only fetch user's own links
+
+            if (linksError) {
+                console.error("Error fetching initial links:", linksError.message);
+                showMessageBox('خطا در بارگذاری لینک‌ها.', 'error');
+            } else {
+                window.links = linksData;
+                window.renderLinks(searchInput.value);
+            }
+
+            // Fetch categories
+            const { data: categoriesData, error: categoriesError } = await supabase
+                .from('categories')
+                .select('name')
+                .eq('user_id', window.currentUserId); // Ensure we only fetch user's own categories
+
+            if (categoriesError) {
+                console.error("Error fetching initial categories:", categoriesError.message);
+                showMessageBox('خطا در بارگذاری دسته‌بندی‌ها.', 'error');
+            } else {
+                const fetchedCategories = categoriesData.map(cat => cat.name);
+                window.categories = [...new Set([...window.defaultCategories, ...fetchedCategories])];
+                window.renderCategories();
+            }
+        }
+
+        function setupSupabaseListeners() {
+            // Real-time listener for links
+            supabase
+                .channel('links_changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'links', filter: `user_id=eq.${window.currentUserId}` }, payload => {
+                    console.log('Link change received!', payload);
+                    fetchInitialData(); // Re-fetch all data to ensure consistency and correct sorting
+                })
+                .subscribe();
+
+            // Real-time listener for categories
+            supabase
+                .channel('categories_changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'categories', filter: `user_id=eq.${window.currentUserId}` }, payload => {
+                    console.log('Category change received!', payload);
+                    fetchInitialData(); // Re-fetch to update categories dropdown
+                })
+                .subscribe();
+        }
+
+        // --- UI Rendering Functions (mostly unchanged) ---
+        window.renderCategories = function() {
+            const categorySelect = document.getElementById('link-category');
             categorySelect.innerHTML = '<option value="">انتخاب دسته‌بندی</option>';
-            categories.forEach(category => {
+            window.categories.forEach(category => {
                 const option = document.createElement('option');
                 option.value = category;
                 option.textContent = category;
                 categorySelect.appendChild(option);
             });
-        }
+        };
 
-        // Render links grouped by category
-        function renderLinks(searchTerm = '') {
+        window.renderLinks = function(searchTerm = '') {
+            const linkContainer = document.getElementById('link-container');
             linkContainer.innerHTML = '';
             const filteredLinks = searchTerm
-                ? links.filter(link => 
+                ? window.links.filter(link => 
                     link.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     link.url?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     link.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     link.category.toLowerCase().includes(searchTerm.toLowerCase())
                 )
-                : links;
+                : window.links;
 
-            categories.forEach(category => {
-                const categoryLinks = filteredLinks.filter(link => link.category === category);
+            const groupedLinks = filteredLinks.reduce((acc, link) => {
+                (acc[link.category] = acc[link.category] || []).push(link);
+                return acc;
+            }, {});
+
+            const sortedCategories = Object.keys(groupedLinks).sort((a, b) => {
+                if (a === "یادداشتها") return -1;
+                if (b === "یادداشتها") return 1;
+                return a.localeCompare(b);
+            });
+
+            sortedCategories.forEach(category => {
+                const categoryLinks = groupedLinks[category];
                 if (categoryLinks.length > 0) {
                     const categoryDiv = document.createElement('div');
                     categoryDiv.className = 'flex flex-col gap-4';
@@ -333,15 +346,13 @@
                     categoryLinks.forEach((link) => {
                         const linkElement = document.createElement('div');
                         linkElement.className = 'link-card rounded-lg shadow-md hover:shadow-lg flex justify-between items-start';
-                        // Use data attributes to store link data for easy access in event listener
-                        linkElement.dataset.id = link.id; // Store Firestore document ID
+                        linkElement.dataset.id = link.id;
                         linkElement.dataset.title = link.title;
                         linkElement.dataset.url = link.url || '';
                         linkElement.dataset.notes = link.notes || '';
+                        linkElement.dataset.category = link.category;
 
                         const notesParagraph = link.notes ? `<p class="text-sm notes-text mt-2">${link.notes}</p>` : '';
-
-                        // Truncate title to 25 characters and add ellipsis if longer
                         const displayedTitle = link.title.length > 25 ? link.title.substring(0, 25) + '...' : link.title;
 
                         const editIconHtml = `
@@ -350,7 +361,7 @@
 
                         linkElement.innerHTML = `
                             <div class="icon-group">
-                                <button class="delete-btn text-gray-300 hover:text-red-500" data-id="${link.id}" data-category="${category}">×</button>
+                                <button class="delete-btn text-gray-300 hover:text-red-500" data-id="${link.id}" data-category="${link.category}">×</button>
                                 ${editIconHtml}
                             </div>
                             <div class="flex-1">
@@ -362,7 +373,6 @@
                         `;
                         categoryDiv.appendChild(linkElement);
 
-                        // Conditionally add scrollable class based on notes length
                         if (link.notes && link.notes.length > 160) {
                             const pElement = linkElement.querySelector('.notes-text');
                             if (pElement) {
@@ -374,44 +384,49 @@
                 }
             });
 
-            // Add event listeners for delete buttons
+            attachEventListeners();
+        };
+
+        function attachEventListeners() {
             document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
+                button.onclick = (e) => {
                     e.stopPropagation();
-                    const docIdToDelete = e.target.dataset.id;
-                    currentLinkDocId = docIdToDelete;
+                    currentLinkToDeleteId = e.target.dataset.id;
+                    currentLinkToDeleteCategory = e.target.dataset.category;
                     confirmModal.classList.add('show');
-                });
+                };
             });
 
-            // Add event listeners for link cards to show notes modal if no URL
             document.querySelectorAll('.link-card').forEach(card => {
-                card.addEventListener('click', (e) => {
+                card.onclick = (e) => {
+                    if (e.target.closest('.delete-btn') || e.target.closest('.edit-icon')) {
+                        return;
+                    }
+
                     const url = e.currentTarget.dataset.url;
                     const title = e.currentTarget.dataset.title;
                     const notes = e.currentTarget.dataset.notes;
-                    currentLinkDocId = e.currentTarget.dataset.id;
+                    currentLinkToEditId = e.currentTarget.dataset.id;
 
-                    if (!url && notes && !e.target.closest('.edit-icon')) {
+                    if (!url && notes) {
                         notesModalTitle.textContent = title;
                         notesModalContent.value = notes;
                         notesModal.classList.add('show');
-                    } else if (url && !e.target.closest('.edit-icon')) {
+                    } else if (url) {
                         window.open(url, '_blank');
                     }
-                });
+                };
             });
 
-            // Add event listeners for edit icons
             document.querySelectorAll('.edit-icon').forEach(icon => {
-                icon.addEventListener('click', (e) => {
+                icon.onclick = (e) => {
                     e.stopPropagation();
-                    const docId = e.currentTarget.dataset.id;
-                    const link = links.find(l => l.id === docId);
+                    const linkId = e.currentTarget.dataset.id;
+                    const link = window.links.find(l => l.id === linkId);
 
                     if (link) {
                         isEditMode = true;
-                        currentLinkDocId = docId;
+                        currentLinkToEditId = link.id;
 
                         formModalTitle.textContent = 'ویرایش لینک';
                         addLinkButton.textContent = 'ذخیره تغییرات';
@@ -424,154 +439,11 @@
 
                         formModal.classList.add('show');
                     }
-                });
+                };
             });
         }
 
-        // Add new link or Save edited link
-        addLinkButton.addEventListener('click', async () => {
-            let title = titleInput.value.trim();
-            const url = urlInput.value.trim();
-            let category = categorySelect.value;
-            const newCategory = newCategoryInput.value.trim();
-            const notes = notesInput.value.trim();
-
-            if (title.length > 25) {
-                title = title.substring(0, 25);
-                showMessageBox('عنوان به 25 کاراکتر محدود شد.', 'info');
-            }
-
-            if (!title) {
-                showMessageBox('لطفاً عنوان لینک را وارد کنید.', 'error');
-                return;
-            }
-
-            if (newCategory) {
-                category = newCategory;
-                // Add new category to Firestore if it doesn't exist
-                if (!categories.includes(newCategory)) {
-                    try {
-                        await addDoc(collection(db, `users/${userId}/categories`), { name: newCategory });
-                    } catch (error) {
-                        console.error("Error adding new category:", error);
-                        showMessageBox(`خطا در افزودن دسته‌بندی جدید: ${error.message}`, 'error');
-                    }
-                }
-            } else if (!category) {
-                showMessageBox('لطفاً یک دسته‌بندی انتخاب کنید یا دسته‌بندی جدید وارد کنید.', 'error');
-                return;
-            }
-
-            try {
-                if (isEditMode) {
-                    // Update existing link in Firestore
-                    await updateDoc(doc(db, `users/${userId}/links`, currentLinkDocId), { title, url, category, notes });
-                    showMessageBox('لینک با موفقیت ویرایش شد!', 'success');
-                } else {
-                    // Add new link to Firestore
-                    await addDoc(collection(db, `users/${userId}/links`), { title, url, category, notes });
-                    showMessageBox('لینک با موفقیت اضافه شد!', 'success');
-                }
-            } catch (error) {
-                console.error("Error saving link:", error);
-                showMessageBox(`خطا در ذخیره لینک: ${error.message}`, 'error');
-            }
-            
-            clearFormAndCloseModal();
-        });
-
-        // Show/hide form modal
-        showFormButton.addEventListener('click', () => {
-            isEditMode = false;
-            formModalTitle.textContent = 'افزودن لینک جدید';
-            addLinkButton.textContent = 'افزودن لینک';
-            clearFormAndCloseModal();
-            formModal.classList.add('show');
-        });
-
-        cancelFormButton.addEventListener('click', () => {
-            clearFormAndCloseModal();
-        });
-
-        // Helper function to clear form and close modal
-        function clearFormAndCloseModal() {
-            titleInput.value = '';
-            urlInput.value = '';
-            categorySelect.value = '';
-            newCategoryInput.value = '';
-            notesInput.value = '';
-            formModal.classList.remove('show');
-        }
-
-        // Close notes modal
-        closeNotesModalButton.addEventListener('click', () => {
-            notesModal.classList.remove('show');
-        });
-
-        // Save notes from modal
-        saveNotesModalButton.addEventListener('click', async () => {
-            if (currentLinkDocId) {
-                try {
-                    await updateDoc(doc(db, `users/${userId}/links`, currentLinkDocId), { notes: notesModalContent.value.trim() });
-                    notesModal.classList.remove('show');
-                    showMessageBox('یادداشت‌ها با موفقیت ذخیره شد!', 'success');
-                } catch (error) {
-                    console.error("Error saving notes:", error);
-                    showMessageBox(`خطا در ذخیره یادداشت‌ها: ${error.message}`, 'error');
-                }
-            }
-        });
-
-        // Confirmation modal buttons
-        confirmDeleteBtn.addEventListener('click', async () => {
-            if (currentLinkDocId) {
-                try {
-                    const linkToDelete = links.find(link => link.id === currentLinkDocId);
-                    const categoryOfDeletedLink = linkToDelete ? linkToDelete.category : null;
-
-                    await deleteDoc(doc(db, `users/${userId}/links`, currentLinkDocId));
-
-                    // Check if the category is now empty and not a default category
-                    if (categoryOfDeletedLink && !defaultCategories.includes(categoryOfDeletedLink)) {
-                        const q = query(collection(db, `users/${userId}/links`), where("category", "==", categoryOfDeletedLink));
-                        const querySnapshot = await getDocs(q);
-                        if (querySnapshot.empty) {
-                            // Find the category document and delete it
-                            const categoryQuery = query(collection(db, `users/${userId}/categories`), where("name", "==", categoryOfDeletedLink));
-                            const categorySnapshot = await getDocs(categoryQuery);
-                            if (!categorySnapshot.empty) {
-                                await deleteDoc(categorySnapshot.docs[0].ref);
-                            }
-                        }
-                    }
-
-                    confirmModal.classList.remove('show');
-                    showMessageBox('لینک با موفقیت حذف شد!', 'success');
-                } catch (error) {
-                    console.error("Error deleting link:", error);
-                    showMessageBox(`خطا در حذف لینک: ${error.message}`, 'error');
-                } finally {
-                    currentLinkDocId = null; // Reset ID
-                }
-            }
-        });
-
-        cancelDeleteBtn.addEventListener('click', () => {
-            confirmModal.classList.remove('show');
-            currentLinkDocId = null; // Reset ID
-        });
-
-        // Search functionality
-        searchInput.addEventListener('input', (e) => {
-            renderLinks(e.target.value);
-        });
-
-        searchButton.addEventListener('click', () => {
-            renderLinks(searchInput.value);
-        });
-
-        // Custom Message Box
-        function showMessageBox(message, type = 'info') {
+        window.showMessageBox = function(message, type = 'info') {
             let messageBox = document.getElementById('message-box');
             if (!messageBox) {
                 messageBox = document.createElement('div');
@@ -584,19 +456,177 @@
             messageBox.style.display = 'block';
 
             if (type === 'success') {
-                messageBox.style.backgroundColor = '#4CAF50'; // Green
+                messageBox.style.backgroundColor = '#4CAF50';
             } else if (type === 'error') {
-                messageBox.style.backgroundColor = '#f44336'; // Red
+                messageBox.style.backgroundColor = '#f44336';
             } else {
-                messageBox.style.backgroundColor = '#2196F3'; // Blue (info)
+                messageBox.style.backgroundColor = '#2196F3';
             }
 
             setTimeout(() => {
                 messageBox.style.display = 'none';
-            }, 3000); // Hide after 3 seconds
-        }
+            }, 3000);
+        };
+
+        // --- Event Listeners for Modals and Forms (Supabase Operations) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add/Save Link Button
+            addLinkButton.addEventListener('click', async () => {
+                if (!window.currentUserId) {
+                    showMessageBox('Supabase هنوز آماده نیست. لطفاً صبر کنید.', 'error');
+                    return;
+                }
+
+                let title = titleInput.value.trim();
+                const url = urlInput.value.trim();
+                let category = categorySelect.value;
+                const newCategory = newCategoryInput.value.trim();
+                const notes = notesInput.value.trim();
+
+                if (title.length > 25) {
+                    title = title.substring(0, 25);
+                    showMessageBox('عنوان به 25 کاراکتر محدود شد.', 'info');
+                }
+
+                if (!title) {
+                    showMessageBox('لطفاً عنوان لینک را وارد کنید.', 'error');
+                    return;
+                }
+
+                if (newCategory) {
+                    category = newCategory;
+                    if (!window.categories.includes(newCategory)) {
+                        try {
+                            const { error } = await supabase
+                                .from('categories')
+                                .insert({ name: newCategory, user_id: window.currentUserId });
+                            if (error) throw error;
+                            showMessageBox('دسته‌بندی جدید اضافه شد!', 'success');
+                        } catch (e) {
+                            console.error("Error adding category:", e.message);
+                            showMessageBox('خطا در افزودن دسته‌بندی.', 'error');
+                        }
+                    }
+                } else if (!category) {
+                    showMessageBox('لطفاً یک دسته‌بندی انتخاب کنید یا دسته‌بندی جدید وارد کنید.', 'error');
+                    return;
+                }
+
+                try {
+                    if (isEditMode && currentLinkToEditId) {
+                        const { error } = await supabase
+                            .from('links')
+                            .update({ title, url, category, notes })
+                            .eq('id', currentLinkToEditId)
+                            .eq('user_id', window.currentUserId); // Ensure user owns the link
+                        if (error) throw error;
+                        showMessageBox('لینک با موفقیت ویرایش شد!', 'success');
+                    } else {
+                        const { error } = await supabase
+                            .from('links')
+                            .insert({ title, url, category, notes, user_id: window.currentUserId });
+                        if (error) throw error;
+                        showMessageBox('لینک با موفقیت اضافه شد!', 'success');
+                    }
+                } catch (e) {
+                    console.error("Error saving link:", e.message);
+                    showMessageBox('خطا در ذخیره لینک.', 'error');
+                } finally {
+                    clearFormAndCloseModal();
+                }
+            });
+
+            // Show/hide form modal
+            showFormButton.addEventListener('click', () => {
+                isEditMode = false;
+                currentLinkToEditId = null;
+                formModalTitle.textContent = 'افزودن لینک جدید';
+                addLinkButton.textContent = 'افزودن لینک';
+                clearFormAndCloseModal();
+                formModal.classList.add('show');
+            });
+
+            cancelFormButton.addEventListener('click', () => {
+                clearFormAndCloseModal();
+            });
+
+            function clearFormAndCloseModal() {
+                titleInput.value = '';
+                urlInput.value = '';
+                categorySelect.value = '';
+                newCategoryInput.value = '';
+                notesInput.value = '';
+                formModal.classList.remove('show');
+            }
+
+            // Close notes modal
+            closeNotesModalButton.addEventListener('click', () => {
+                notesModal.classList.remove('show');
+            });
+
+            // Save notes from modal
+            saveNotesModalButton.addEventListener('click', async () => {
+                if (!window.currentUserId || !currentLinkToEditId) {
+                    showMessageBox('Supabase یا لینک برای ویرایش آماده نیست.', 'error');
+                    return;
+                }
+                try {
+                    const { error } = await supabase
+                        .from('links')
+                        .update({ notes: notesModalContent.value.trim() })
+                        .eq('id', currentLinkToEditId)
+                        .eq('user_id', window.currentUserId); // Ensure user owns the link
+                    if (error) throw error;
+                    notesModal.classList.remove('show');
+                    showMessageBox('یادداشت‌ها با موفقیت ذخیره شد!', 'success');
+                } catch (e) {
+                    console.error("Error saving notes:", e.message);
+                    showMessageBox('خطا در ذخیره یادداشت‌ها.', 'error');
+                }
+            });
+
+            // Confirmation modal buttons
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (!window.currentUserId || !currentLinkToDeleteId) {
+                    showMessageBox('Supabase یا لینک برای حذف آماده نیست.', 'error');
+                    return;
+                }
+                try {
+                    const { error } = await supabase
+                        .from('links')
+                        .delete()
+                        .eq('id', currentLinkToDeleteId)
+                        .eq('user_id', window.currentUserId); // Ensure user owns the link
+                    if (error) throw error;
+                    showMessageBox('لینک با موفقیت حذف شد!', 'success');
+                } catch (e) {
+                    console.error("Error deleting link:", e.message);
+                    showMessageBox('خطا در حذف لینک.', 'error');
+                } finally {
+                    confirmModal.classList.remove('show');
+                    currentLinkToDeleteId = null;
+                    currentLinkToDeleteCategory = null;
+                }
+            });
+
+            cancelDeleteBtn.addEventListener('click', () => {
+                confirmModal.classList.remove('show');
+                currentLinkToDeleteId = null;
+                currentLinkToDeleteCategory = null;
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                window.renderLinks(e.target.value);
+            });
+
+            searchButton.addEventListener('click', () => {
+                window.renderLinks(searchInput.value);
+            });
+
+            // Initialize Supabase on page load
+            initializeSupabase();
+        });
     </script>
-    <!-- Custom message box element -->
-    <div id="message-box" class="hidden"></div>
 </body>
 </html>
