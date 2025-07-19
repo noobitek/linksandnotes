@@ -196,6 +196,8 @@
     <script type="module">
         // The Supabase SDK is loaded globally via the <script> tag above.
         // We can access its createClient function directly from the global 'Supabase' object.
+        // Removed the import statement as it's not needed when Supabase is globally available.
+        
         const SUPABASE_URL = 'https://qucemgbfrbjckduvutho.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1Y2VtZ2JmcmJqY2tkdXZ1dGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5Mjg4MjcsImV4cCI6MjA2ODUwNDgyN30.cOKm96oCK-L_hSwhuuK3wbrZJ4AbzDHtyKIKaRTd_f4';
 
@@ -559,7 +561,7 @@
                 newCategoryInput.value = '';
                 notesInput.value = '';
                 formModal.classList.remove('show');
-            });
+            } // Corrected: Changed ')' to '}' here.
 
             // Close notes modal
             closeNotesModalButton.addEventListener('click', () => {
