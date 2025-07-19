@@ -8,7 +8,7 @@
     <!-- Font Awesome CDN for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Supabase SDK -->
-    <!-- The Supabase SDK is loaded here, but its functions need to be imported in the module script below -->
+    <!-- The Supabase SDK is loaded here, which makes 'Supabase' available globally -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -194,14 +194,12 @@
     <div id="message-box" class="hidden"></div>
 
     <script type="module">
-        // Import createClient from the Supabase SDK
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-
-        // Replace with your actual Supabase URL and Anon Key
+        // The Supabase SDK is loaded globally via the <script> tag above.
+        // We can access its createClient function directly from the global 'Supabase' object.
         const SUPABASE_URL = 'https://qucemgbfrbjckduvutho.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1Y2VtZ2JmcmJqY2tkdXZ1dGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5Mjg4MjcsImV4cCI6MjA2ODUwNDgyN30.cOKm96oCK-L_hSwhuuK3wbrZJ4AbzDHtyKIKaRTd_f4';
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         window.currentUserId = null;
         window.links = [];
@@ -561,7 +559,7 @@
                 newCategoryInput.value = '';
                 notesInput.value = '';
                 formModal.classList.remove('show');
-            }
+            });
 
             // Close notes modal
             closeNotesModalButton.addEventListener('click', () => {
