@@ -1,17 +1,13 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لینک‌های مفید من</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome CDN for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Supabase SDK -->
-    <!-- The Supabase SDK is loaded here, which makes 'Supabase' available globally -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <style>
+
+
+    
+    
+    لینک‌های مفید من
+    
+    
+    
+    
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
         body {
             background: linear-gradient(to bottom right, #1e293b, #2d3748);
@@ -33,7 +29,7 @@
         .link-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            background: #3e4e70;
+            background: #3b4a6b;
         }
         .form-container {
             background: #2d3748;
@@ -126,511 +122,520 @@
             overflow-wrap: break-word;
             overflow: hidden;
         }
-    </style>
-</head>
-<body class="flex flex-col items-center justify-center p-6">
-    <div class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-white">لینک‌های مفید من</h1>
-        <p class="text-lg text-gray-300 mt-2">مجموعه‌ای از منابع مورد علاقه من</p>
-        <p id="user-id-display" class="text-sm text-gray-400 mt-1">Initializing Supabase...</p>
-    </div>
-    <div class="max-w-md w-full mb-6 flex gap-2">
-        <input id="search-input" type="text" placeholder="جستجوی لینک‌ها..." class="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right bg-[#1e293b] border-[#4b5563]">
-        <button id="search-btn" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">جستجو</button>
-    </div>
-    <div class="max-w-md w-full mb-6">
-        <button id="show-form-btn" class="w-full bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">افزودن لینک جدید</button>
-    </div>
-    <div id="form-modal" class="modal">
-        <div class="form-container rounded-xl p-6 shadow-lg max-w-md w-full">
-            <h2 id="form-modal-title" class="text-xl font-semibold text-white mb-4">افزودن لینک جدید</h2>
-            <div class="space-y-4">
-                <input id="link-title" type="text" placeholder="عنوان لینک" maxlength="25" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
-                <input id="link-url" type="url" placeholder="آدرس لینک (اختیاری)" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
-                <select id="link-category" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
-                    <option value="">انتخاب دسته‌بندی</option>
-                    <option value="عمومی">عمومی</option>
-                    <option value="کاری">کاری</option>
-                    <option value="شخصی">شخصی</option>
-                </select>
-                <input id="new-category" type="text" placeholder="دسته‌بندی جدید (اختیاری)" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
-                <textarea id="link-notes" placeholder="یادداشت‌ها (اخ اختیاری)" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right h-24"></textarea>
-                <div class="flex gap-4">
-                    <button id="add-link" class="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">افزودن لینک</button>
-                    <button id="cancel-form" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">لغو</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
-    <!-- Modal for displaying and editing notes -->
-    <div id="notes-modal" class="modal">
-        <div class="form-container rounded-xl p-6 shadow-lg max-w-md w-full">
-            <h2 id="notes-modal-title" class="text-xl font-semibold text-white mb-4"></h2>
-            <textarea id="notes-modal-content" class="notes-display w-full mb-4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right" rows="10"></textarea>
-            <div class="flex gap-4">
-                <button id="save-notes-modal" class="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">ذخیره یادداشت‌ها</button>
-                <button id="close-notes-modal" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">بستن</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- New Confirmation Modal -->
-    <div id="confirm-modal" class="modal">
-        <div class="form-container rounded-xl p-6 shadow-lg max-w-sm w-full text-center">
-            <h2 class="text-xl font-semibold text-white mb-4">تایید حذف</h2>
-            <p class="text-gray-300 mb-6">آیا مطمئن هستید که می‌خواهید این لینک را حذف کنید؟</p>
-            <div class="flex gap-4 justify-center">
-                <button id="confirm-delete-btn" class="flex-1 bg-red-600 text-white p-2 rounded-md hover:bg-red-700">حذف</button>
-                <button id="cancel-delete-btn" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">لغو</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="link-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full">
-        <!-- Links will be dynamically added here, grouped by category -->
-    </div>
-    <!-- Custom message box element -->
-    <div id="message-box" class="hidden"></div>
-
-    <script type="module">
-        // The Supabase SDK is loaded globally via the <script> tag above.
-        // We can access its createClient function directly from the global 'Supabase' object.
-        // Removed the import statement as it's not needed when Supabase is globally available.
+    
+        لینک‌های مفید من
+        مجموعه‌ای از منابع مورد علاقه من
+    
+    
         
-        const SUPABASE_URL = 'https://qucemgbfrbjckduvutho.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1Y2VtZ2JmcmJqY2tkdXZ1dGhvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5Mjg4MjcsImV4cCI6MjA2ODUwNDgyN30.cOKm96oCK-L_hSwhuuK3wbrZJ4AbzDHtyKIKaRTd_f4';
-
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        window.currentUserId = null;
-        window.links = [];
-        window.categories = ["عمومی", "کاری", "شخصی"]; // Default categories
-        window.defaultCategories = ["یادداشتها", "عمومی", "کاری", "شخصی"];
-
-        // DOM elements
-        const titleInput = document.getElementById('link-title');
-        const urlInput = document.getElementById('link-url');
-        const categorySelect = document.getElementById('link-category');
-        const newCategoryInput = document.getElementById('new-category');
-        const notesInput = document.getElementById('link-notes');
-        const addLinkButton = document.getElementById('add-link');
-        const showFormButton = document.getElementById('show-form-btn');
-        const cancelFormButton = document.getElementById('cancel-form');
-        const formModal = document.getElementById('form-modal');
-        const formModalTitle = document.getElementById('form-modal-title');
-        const searchInput = document.getElementById('search-input');
-        const searchButton = document.getElementById('search-btn');
-        const notesModal = document.getElementById('notes-modal');
-        const notesModalContent = document.getElementById('notes-modal-content');
-        const closeNotesModalButton = document.getElementById('close-notes-modal');
-        const saveNotesModalButton = document.getElementById('save-notes-modal');
-        const confirmModal = document.getElementById('confirm-modal');
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-        const userIdDisplay = document.getElementById('user-id-display');
-
-        let currentLinkToEditId = null;
-        let isEditMode = false;
-        let currentLinkToDeleteId = null;
-        let currentLinkToDeleteCategory = null;
-
-        // --- Supabase Authentication and Data Fetching ---
-        async function initializeSupabase() {
-            try {
-                const { data, error } = await supabase.auth.signInAnonymously();
-                if (error) throw error;
+            ورود / ثبت‌نام
+            
                 
-                window.currentUserId = data.user.id;
-                userIdDisplay.textContent = `User ID: ${window.currentUserId}`;
-                console.log("Supabase initialized and user signed in anonymously:", window.currentUserId);
+                
+                
+                    ورود
+                    ثبت‌نام
+                    خروج
+                
+            
+        
+    
+    
+        
+        جستجو
+    
+    
+        افزودن لینک جدید
+    
+    
+        
+            افزودن لینک جدید
+            
+                
+                
+                
+                    انتخاب دسته‌بندی
+                
+                
+                
+                
+                    افزودن لینک
+                    لغو
+                
+            
+        
+    
+    
+        
+            
+            
+            
+                ذخیره یادداشت‌ها
+                بستن
+            
+        
+    
+    
+        
+            تایید حذف
+            آیا مطمئن هستید که می‌خواهید این لینک را حذف کنید؟
+            
+                حذف
+                لغو
+            
+        
+    
+    
+    
+    
+        const supabaseUrl = 'https://mmtbzcorylzlomlacfvg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdGJ6Y29yeWx6bG9tbGFjZnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5OTI0NzcsImV4cCI6MjA2ODU2ODQ3N30.uqvMRuot0I-iRmwIO7GSfp4bqqUBrZcjjV5ExHlN0pk';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-                setupSupabaseListeners();
-                fetchInitialData(); // Fetch initial data after auth and listeners are set up
+<pre><code>    let links = [];
+    let categories = [];
+    const defaultCategories = [&quot;یادداشتها&quot;, &quot;عمومی&quot;, &quot;کاری&quot;, &quot;شخصی&quot;];
+    const linkContainer = document.getElementById(&#39;link-container&#39;);
+    const titleInput = document.getElementById(&#39;link-title&#39;);
+    const urlInput = document.getElementById(&#39;link-url&#39;);
+    const categorySelect = document.getElementById(&#39;link-category&#39;);
+    const newCategoryInput = document.getElementById(&#39;new-category&#39;);
+    const notesInput = document.getElementById(&#39;link-notes&#39;);
+    const addLinkButton = document.getElementById(&#39;add-link&#39;);
+    const showFormButton = document.getElementById(&#39;show-form-btn&#39;);
+    const cancelFormButton = document.getElementById(&#39;cancel-form&#39;);
+    const formModal = document.getElementById(&#39;form-modal&#39;);
+    const formModalTitle = document.getElementById(&#39;form-modal-title&#39;);
+    const searchInput = document.getElementById(&#39;search-input&#39;);
+    const searchButton = document.getElementById(&#39;search-btn&#39;);
+    const notesModal = document.getElementById(&#39;notes-modal&#39;);
+    const notesModalTitle = document.getElementById(&#39;notes-modal-title&#39;);
+    const notesModalContent = document.getElementById(&#39;notes-modal-content&#39;);
+    const closeNotesModalButton = document.getElementById(&#39;close-notes-modal&#39;);
+    const saveNotesModalButton = document.getElementById(&#39;save-notes-modal&#39;);
+    const confirmModal = document.getElementById(&#39;confirm-modal&#39;);
+    const confirmDeleteBtn = document.getElementById(&#39;confirm-delete-btn&#39;);
+    const cancelDeleteBtn = document.getElementById(&#39;cancel-delete-btn&#39;);
+    const emailInput = document.getElementById(&#39;email&#39;);
+    const passwordInput = document.getElementById(&#39;password&#39;);
+    const signInBtn = document.getElementById(&#39;sign-in-btn&#39;);
+    const signUpBtn = document.getElementById(&#39;sign-up-btn&#39;);
+    const signOutBtn = document.getElementById(&#39;sign-out-btn&#39;);
+    const authContainer = document.getElementById(&#39;auth-container&#39;);
 
-            } catch (error) {
-                console.error("Error initializing Supabase or signing in:", error.message);
-                userIdDisplay.textContent = `Error: ${error.message}`;
-                showMessageBox('خطا در اتصال به پایگاه داده.', 'error');
+    let currentLinkIndex = -1;
+    let isEditMode = false;
+
+    async function ensureDefaultCategories() {
+        const { data: existingCategories, error } = await supabase
+            .from(&#39;categories&#39;)
+            .select(&#39;name&#39;)
+            .eq(&#39;user_id&#39;, (await supabase.auth.getUser()).data.user.id);
+        if (error) {
+            showMessageBox(`خطا در بررسی دسته‌بندی‌ها: ${error.message}`, &#39;error&#39;);
+            return;
+        }
+        const existingCategoryNames = existingCategories ? existingCategories.map(cat =&gt; cat.name) : [];
+        const missingCategories = defaultCategories.filter(cat =&gt; !existingCategoryNames.includes(cat));
+        if (missingCategories.length &gt; 0) {
+            const { error: insertError } = await supabase
+                .from(&#39;categories&#39;)
+                .insert(
+                    missingCategories.map(name =&gt; ({
+                        name,
+                        user_id: (await supabase.auth.getUser()).data.user.id
+                    }))
+                );
+            if (insertError) {
+                showMessageBox(`خطا در افزودن دسته‌بندی‌های پیش‌فرض: ${insertError.message}`, &#39;error&#39;);
             }
         }
+    }
 
-        async function fetchInitialData() {
-            // Fetch links
-            const { data: linksData, error: linksError } = await supabase
-                .from('links')
-                .select('*')
-                .eq('user_id', window.currentUserId); // Ensure we only fetch user's own links
-
-            if (linksError) {
-                console.error("Error fetching initial links:", linksError.message);
-                showMessageBox('خطا در بارگذاری لینک‌ها.', 'error');
-            } else {
-                window.links = linksData;
-                window.renderLinks(searchInput.value);
-            }
-
-            // Fetch categories
-            const { data: categoriesData, error: categoriesError } = await supabase
-                .from('categories')
-                .select('name')
-                .eq('user_id', window.currentUserId); // Ensure we only fetch user's own categories
-
-            if (categoriesError) {
-                console.error("Error fetching initial categories:", categoriesError.message);
-                showMessageBox('خطا در بارگذاری دسته‌بندی‌ها.', 'error');
-            } else {
-                const fetchedCategories = categoriesData.map(cat => cat.name);
-                window.categories = [...new Set([...window.defaultCategories, ...fetchedCategories])];
-                window.renderCategories();
-            }
-        }
-
-        function setupSupabaseListeners() {
-            // Real-time listener for links
+    supabase.auth.getSession().then(async ({ data: { session } }) =&gt; {
+        if (session) {
+            signInBtn.classList.add(&#39;hidden&#39;);
+            signUpBtn.classList.add(&#39;hidden&#39;);
+            signOutBtn.classList.remove(&#39;hidden&#39;);
+            authContainer.classList.add(&#39;hidden&#39;);
+            await ensureDefaultCategories();
+            renderCategories();
+            renderLinks();
             supabase
-                .channel('links_changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'links', filter: `user_id=eq.${window.currentUserId}` }, payload => {
-                    console.log('Link change received!', payload);
-                    fetchInitialData(); // Re-fetch all data to ensure consistency and correct sorting
+                .channel(&#39;links&#39;)
+                .on(&#39;postgres_changes&#39;, { event: &#39;*&#39;, schema: &#39;public&#39;, table: &#39;links&#39;, filter: `user_id=eq.${session.user.id}` }, payload =&gt; {
+                    renderLinks(searchInput.value);
                 })
                 .subscribe();
-
-            // Real-time listener for categories
-            supabase
-                .channel('categories_changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'categories', filter: `user_id=eq.${window.currentUserId}` }, payload => {
-                    console.log('Category change received!', payload);
-                    fetchInitialData(); // Re-fetch to update categories dropdown
-                })
-                .subscribe();
         }
+    });
 
-        // --- UI Rendering Functions (mostly unchanged) ---
-        window.renderCategories = function() {
-            const categorySelect = document.getElementById('link-category');
-            categorySelect.innerHTML = '<option value="">انتخاب دسته‌بندی</option>';
-            window.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categorySelect.appendChild(option);
-            });
-        };
-
-        window.renderLinks = function(searchTerm = '') {
-            const linkContainer = document.getElementById('link-container');
-            linkContainer.innerHTML = '';
-            const filteredLinks = searchTerm
-                ? window.links.filter(link => 
-                    link.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    link.url?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    link.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    link.category.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                : window.links;
-
-            const groupedLinks = filteredLinks.reduce((acc, link) => {
-                (acc[link.category] = acc[link.category] || []).push(link);
-                return acc;
-            }, {});
-
-            const sortedCategories = Object.keys(groupedLinks).sort((a, b) => {
-                if (a === "یادداشتها") return -1;
-                if (b === "یادداشتها") return 1;
-                return a.localeCompare(b);
-            });
-
-            sortedCategories.forEach(category => {
-                const categoryLinks = groupedLinks[category];
-                if (categoryLinks.length > 0) {
-                    const categoryDiv = document.createElement('div');
-                    categoryDiv.className = 'flex flex-col gap-4';
-                    categoryDiv.innerHTML = `<h2 class="text-2xl font-semibold text-white">${category}</h2>`;
-                    categoryLinks.forEach((link) => {
-                        const linkElement = document.createElement('div');
-                        linkElement.className = 'link-card rounded-lg shadow-md hover:shadow-lg flex justify-between items-start';
-                        linkElement.dataset.id = link.id;
-                        linkElement.dataset.title = link.title;
-                        linkElement.dataset.url = link.url || '';
-                        linkElement.dataset.notes = link.notes || '';
-                        linkElement.dataset.category = link.category;
-
-                        const notesParagraph = link.notes ? `<p class="text-sm notes-text mt-2">${link.notes}</p>` : '';
-                        const displayedTitle = link.title.length > 25 ? link.title.substring(0, 25) + '...' : link.title;
-
-                        const editIconHtml = `
-                            <i class="fa-solid fa-pencil edit-icon" data-id="${link.id}"></i>
-                        `;
-
-                        linkElement.innerHTML = `
-                            <div class="icon-group">
-                                <button class="delete-btn text-gray-300 hover:text-red-500" data-id="${link.id}" data-category="${link.category}">×</button>
-                                ${editIconHtml}
-                            </div>
-                            <div class="flex-1">
-                                <a href="${link.url || '#'}" class="block" ${link.url ? 'onclick="event.preventDefault();"' : ''}>
-                                    <h3 class="text-lg font-medium text-white">${displayedTitle}</h3>
-                                </a>
-                                ${notesParagraph}
-                            </div>
-                        `;
-                        categoryDiv.appendChild(linkElement);
-
-                        if (link.notes && link.notes.length > 160) {
-                            const pElement = linkElement.querySelector('.notes-text');
-                            if (pElement) {
-                                pElement.classList.add('scrollable');
-                            }
-                        }
-                    });
-                    linkContainer.appendChild(categoryDiv);
-                }
-            });
-
-            attachEventListeners();
-        };
-
-        function attachEventListeners() {
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.onclick = (e) => {
-                    e.stopPropagation();
-                    currentLinkToDeleteId = e.target.dataset.id;
-                    currentLinkToDeleteCategory = e.target.dataset.category;
-                    confirmModal.classList.add('show');
-                };
-            });
-
-            document.querySelectorAll('.link-card').forEach(card => {
-                card.onclick = (e) => {
-                    if (e.target.closest('.delete-btn') || e.target.closest('.edit-icon')) {
-                        return;
-                    }
-
-                    const url = e.currentTarget.dataset.url;
-                    const title = e.currentTarget.dataset.title;
-                    const notes = e.currentTarget.dataset.notes;
-                    currentLinkToEditId = e.currentTarget.dataset.id;
-
-                    if (!url && notes) {
-                        notesModalTitle.textContent = title;
-                        notesModalContent.value = notes;
-                        notesModal.classList.add('show');
-                    } else if (url) {
-                        window.open(url, '_blank');
-                    }
-                };
-            });
-
-            document.querySelectorAll('.edit-icon').forEach(icon => {
-                icon.onclick = (e) => {
-                    e.stopPropagation();
-                    const linkId = e.currentTarget.dataset.id;
-                    const link = window.links.find(l => l.id === linkId);
-
-                    if (link) {
-                        isEditMode = true;
-                        currentLinkToEditId = link.id;
-
-                        formModalTitle.textContent = 'ویرایش لینک';
-                        addLinkButton.textContent = 'ذخیره تغییرات';
-
-                        titleInput.value = link.title;
-                        urlInput.value = link.url;
-                        categorySelect.value = link.category;
-                        newCategoryInput.value = '';
-                        notesInput.value = link.notes;
-
-                        formModal.classList.add('show');
-                    }
-                };
-            });
+    signUpBtn.addEventListener(&#39;click&#39;, async () =&gt; {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!email || !password) {
+            showMessageBox(&#39;لطفاً ایمیل و رمز عبور را وارد کنید.&#39;, &#39;error&#39;);
+            return;
         }
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) {
+            showMessageBox(`خطا در ثبت‌نام: ${error.message}`, &#39;error&#39;);
+        } else {
+            showMessageBox(&#39;ثبت‌نام موفق! لطفاً ایمیل خود را تأیید کنید.&#39;, &#39;success&#39;);
+            await ensureDefaultCategories();
+            renderCategories();
+        }
+    });
 
-        window.showMessageBox = function(message, type = 'info') {
-            let messageBox = document.getElementById('message-box');
-            if (!messageBox) {
-                messageBox = document.createElement('div');
-                messageBox.id = 'message-box';
-                messageBox.className = 'fixed top-4 right-4 p-4 rounded-md shadow-lg text-white z-50';
-                document.body.appendChild(messageBox);
-            }
+    signInBtn.addEventListener(&#39;click&#39;, async () =&gt; {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+        if (!email || !password) {
+            showMessageBox(&#39;لطفاً ایمیل و رمز عبور را وارد کنید.&#39;, &#39;error&#39;);
+            return;
+        }
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            showMessageBox(`خطا در ورود: ${error.message}`, &#39;error&#39;);
+        } else {
+            showMessageBox(&#39;ورود موفق!&#39;, &#39;success&#39;);
+            signInBtn.classList.add(&#39;hidden&#39;);
+            signUpBtn.classList.add(&#39;hidden&#39;);
+            signOutBtn.classList.remove(&#39;hidden&#39;);
+            authContainer.classList.add(&#39;hidden&#39;);
+            await ensureDefaultCategories();
+            renderCategories();
+            renderLinks();
+        }
+    });
 
-            messageBox.textContent = message;
-            messageBox.style.display = 'block';
+    signOutBtn.addEventListener(&#39;click&#39;, async () =&gt; {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            showMessageBox(`خطا در خروج: ${error.message}`, &#39;error&#39;);
+        } else {
+            showMessageBox(&#39;با موفقیت خارج شدید!&#39;, &#39;success&#39;);
+            signInBtn.classList.remove(&#39;hidden&#39;);
+            signUpBtn.classList.remove(&#39;hidden&#39;);
+            signOutBtn.classList.add(&#39;hidden&#39;);
+            authContainer.classList.remove(&#39;hidden&#39;);
+            linkContainer.innerHTML = &#39;&#39;;
+            categories = [];
+            categorySelect.innerHTML = &#39;&lt;option value=&quot;&quot;&gt;انتخاب دسته‌بندی&lt;/option&gt;&#39;;
+        }
+    });
 
-            if (type === 'success') {
-                messageBox.style.backgroundColor = '#4CAF50';
-            } else if (type === 'error') {
-                messageBox.style.backgroundColor = '#f44336';
-            } else {
-                messageBox.style.backgroundColor = '#2196F3';
-            }
-
-            setTimeout(() => {
-                messageBox.style.display = 'none';
-            }, 3000);
-        };
-
-        // --- Event Listeners for Modals and Forms (Supabase Operations) ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add/Save Link Button
-            addLinkButton.addEventListener('click', async () => {
-                if (!window.currentUserId) {
-                    showMessageBox('Supabase هنوز آماده نیست. لطفاً صبر کنید.', 'error');
-                    return;
-                }
-
-                let title = titleInput.value.trim();
-                const url = urlInput.value.trim();
-                let category = categorySelect.value;
-                const newCategory = newCategoryInput.value.trim();
-                const notes = notesInput.value.trim();
-
-                if (title.length > 25) {
-                    title = title.substring(0, 25);
-                    showMessageBox('عنوان به 25 کاراکتر محدود شد.', 'info');
-                }
-
-                if (!title) {
-                    showMessageBox('لطفاً عنوان لینک را وارد کنید.', 'error');
-                    return;
-                }
-
-                if (newCategory) {
-                    category = newCategory;
-                    if (!window.categories.includes(newCategory)) {
-                        try {
-                            const { error } = await supabase
-                                .from('categories')
-                                .insert({ name: newCategory, user_id: window.currentUserId });
-                            if (error) throw error;
-                            showMessageBox('دسته‌بندی جدید اضافه شد!', 'success');
-                        } catch (e) {
-                            console.error("Error adding category:", e.message);
-                            showMessageBox('خطا در افزودن دسته‌بندی.', 'error');
-                        }
-                    }
-                } else if (!category) {
-                    showMessageBox('لطفاً یک دسته‌بندی انتخاب کنید یا دسته‌بندی جدید وارد کنید.', 'error');
-                    return;
-                }
-
-                try {
-                    if (isEditMode && currentLinkToEditId) {
-                        const { error } = await supabase
-                            .from('links')
-                            .update({ title, url, category, notes })
-                            .eq('id', currentLinkToEditId)
-                            .eq('user_id', window.currentUserId); // Ensure user owns the link
-                        if (error) throw error;
-                        showMessageBox('لینک با موفقیت ویرایش شد!', 'success');
-                    } else {
-                        const { error } = await supabase
-                            .from('links')
-                            .insert({ title, url, category, notes, user_id: window.currentUserId });
-                        if (error) throw error;
-                        showMessageBox('لینک با موفقیت اضافه شد!', 'success');
-                    }
-                } catch (e) {
-                    console.error("Error saving link:", e.message);
-                    showMessageBox('خطا در ذخیره لینک.', 'error');
-                } finally {
-                    clearFormAndCloseModal();
-                }
-            });
-
-            // Show/hide form modal
-            showFormButton.addEventListener('click', () => {
-                isEditMode = false;
-                currentLinkToEditId = null;
-                formModalTitle.textContent = 'افزودن لینک جدید';
-                addLinkButton.textContent = 'افزودن لینک';
-                clearFormAndCloseModal();
-                formModal.classList.add('show');
-            });
-
-            cancelFormButton.addEventListener('click', () => {
-                clearFormAndCloseModal();
-            });
-
-            function clearFormAndCloseModal() {
-                titleInput.value = '';
-                urlInput.value = '';
-                categorySelect.value = '';
-                newCategoryInput.value = '';
-                notesInput.value = '';
-                formModal.classList.remove('show');
-            } // Corrected: Changed ')' to '}' here.
-
-            // Close notes modal
-            closeNotesModalButton.addEventListener('click', () => {
-                notesModal.classList.remove('show');
-            });
-
-            // Save notes from modal
-            saveNotesModalButton.addEventListener('click', async () => {
-                if (!window.currentUserId || !currentLinkToEditId) {
-                    showMessageBox('Supabase یا لینک برای ویرایش آماده نیست.', 'error');
-                    return;
-                }
-                try {
-                    const { error } = await supabase
-                        .from('links')
-                        .update({ notes: notesModalContent.value.trim() })
-                        .eq('id', currentLinkToEditId)
-                        .eq('user_id', window.currentUserId); // Ensure user owns the link
-                    if (error) throw error;
-                    notesModal.classList.remove('show');
-                    showMessageBox('یادداشت‌ها با موفقیت ذخیره شد!', 'success');
-                } catch (e) {
-                    console.error("Error saving notes:", e.message);
-                    showMessageBox('خطا در ذخیره یادداشت‌ها.', 'error');
-                }
-            });
-
-            // Confirmation modal buttons
-            confirmDeleteBtn.addEventListener('click', async () => {
-                if (!window.currentUserId || !currentLinkToDeleteId) {
-                    showMessageBox('Supabase یا لینک برای حذف آماده نیست.', 'error');
-                    return;
-                }
-                try {
-                    const { error } = await supabase
-                        .from('links')
-                        .delete()
-                        .eq('id', currentLinkToDeleteId)
-                        .eq('user_id', window.currentUserId); // Ensure user owns the link
-                    if (error) throw error;
-                    showMessageBox('لینک با موفقیت حذف شد!', 'success');
-                } catch (e) {
-                    console.error("Error deleting link:", e.message);
-                    showMessageBox('خطا در حذف لینک.', 'error');
-                } finally {
-                    confirmModal.classList.remove('show');
-                    currentLinkToDeleteId = null;
-                    currentLinkToDeleteCategory = null;
-                }
-            });
-
-            cancelDeleteBtn.addEventListener('click', () => {
-                confirmModal.classList.remove('show');
-                currentLinkToDeleteId = null;
-                currentLinkToDeleteCategory = null;
-            });
-
-            // Search functionality
-            searchInput.addEventListener('input', (e) => {
-                window.renderLinks(e.target.value);
-            });
-
-            searchButton.addEventListener('click', () => {
-                window.renderLinks(searchInput.value);
-            });
-
-            // Initialize Supabase on page load
-            initializeSupabase();
+    async function renderCategories() {
+        categorySelect.innerHTML = &#39;&lt;option value=&quot;&quot;&gt;انتخاب دسته‌بندی&lt;/option&gt;&#39;;
+        const { data, error } = await supabase
+            .from(&#39;categories&#39;)
+            .select(&#39;name&#39;)
+            .eq(&#39;user_id&#39;, (await supabase.auth.getUser()).data.user.id)
+            .order(&#39;name&#39;, { ascending: true });
+        if (error) {
+            showMessageBox(`خطا در بارگذاری دسته‌بندی‌ها: ${error.message}`, &#39;error&#39;);
+            return;
+        }
+        categories = data ? data.map(cat =&gt; cat.name) : [];
+        categories.forEach(category =&gt; {
+            const option = document.createElement(&#39;option&#39;);
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
         });
-    </script>
+    }
+
+    async function renderLinks(searchTerm = &#39;&#39;) {
+        linkContainer.innerHTML = &#39;&#39;;
+        const { data, error } = await supabase
+            .from(&#39;links&#39;)
+            .select(&#39;*&#39;)
+            .eq(&#39;user_id&#39;, (await supabase.auth.getUser()).data.user.id)
+            .order(&#39;created_at&#39;, { ascending: false });
+        if (error) {
+            showMessageBox(`خطا در بارگذاری لینک‌ها: ${error.message}`, &#39;error&#39;);
+            return;
+        }
+        links = data || [];
+        const filteredLinks = searchTerm
+            ? links.filter(link =&gt; 
+                link.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (link.url &amp;&amp; link.url.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (link.notes &amp;&amp; link.notes.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                link.category.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            : links;
+
+        categories.forEach(category =&gt; {
+            const categoryLinks = filteredLinks.filter(link =&gt; link.category === category);
+            if (categoryLinks.length &gt; 0) {
+                const categoryDiv = document.createElement(&#39;div&#39;);
+                categoryDiv.className = &#39;flex flex-col gap-4&#39;;
+                categoryDiv.innerHTML = `&lt;h2 class=&quot;text-2xl font-semibold text-white&quot;&gt;${category}&lt;/h2&gt;`;
+                categoryLinks.forEach((link, index) =&gt; {
+                    const linkElement = document.createElement(&#39;div&#39;);
+                    linkElement.className = &#39;link-card rounded-lg shadow-md hover:shadow-lg flex justify-between items-start&#39;;
+                    linkElement.dataset.title = link.title;
+                    linkElement.dataset.url = link.url || &#39;&#39;;
+                    linkElement.dataset.notes = link.notes || &#39;&#39;;
+                    linkElement.dataset.index = links.indexOf(link);
+                    linkElement.dataset.id = link.id;
+
+                    const notesParagraph = link.notes ? `&lt;p class=&quot;text-sm notes-text mt-2&quot;&gt;${link.notes}&lt;/p&gt;` : &#39;&#39;;
+                    const displayedTitle = link.title.length &gt; 25 ? link.title.substring(0, 25) + &#39;...&#39; : link.title;
+
+                    const editIconHtml = `
+                        &lt;i class=&quot;fa-solid fa-pencil edit-icon&quot; data-index=&quot;${links.indexOf(link)}&quot;&gt;&lt;/i&gt;
+                    `;
+
+                    linkElement.innerHTML = `
+                        &lt;div class=&quot;icon-group&quot;&gt;
+                            &lt;button class=&quot;delete-btn text-gray-300 hover:text-red-500&quot; data-index=&quot;${links.indexOf(link)}&quot; data-category=&quot;${category}&quot; data-id=&quot;${link.id}&quot;&gt;×&lt;/button&gt;
+                            ${editIconHtml}
+                        &lt;/div&gt;
+                        &lt;div class=&quot;flex-1&quot;&gt;
+                            &lt;a href=&quot;${link.url || &#39;#&#39;}&quot; class=&quot;block&quot; ${link.url ? &#39;onclick=&quot;event.preventDefault();&quot;&#39; : &#39;&#39;}&gt;
+                                &lt;h3 class=&quot;text-lg font-medium text-white&quot;&gt;${displayedTitle}&lt;/h3&gt;
+                            &lt;/a&gt;
+                            ${notesParagraph}
+                        &lt;/div&gt;
+                    `;
+                    categoryDiv.appendChild(linkElement);
+
+                    if (link.notes &amp;&amp; link.notes.length &gt; 160) {
+                        const pElement = linkElement.querySelector(&#39;.notes-text&#39;);
+                        if (pElement) {
+                            pElement.classList.add(&#39;scrollable&#39;);
+                        }
+                    }
+                });
+                linkContainer.appendChild(categoryDiv);
+            }
+        });
+
+        document.querySelectorAll(&#39;.delete-btn&#39;).forEach(button =&gt; {
+            button.addEventListener(&#39;click&#39;, (e) =&gt; {
+                e.stopPropagation();
+                const indexToDelete = parseInt(e.target.dataset.index);
+                currentLinkIndex = indexToDelete;
+                confirmModal.classList.add(&#39;show&#39;);
+            });
+        });
+
+        document.querySelectorAll(&#39;.link-card&#39;).forEach(card =&gt; {
+            card.addEventListener(&#39;click&#39;, (e) =&gt; {
+                const url = e.currentTarget.dataset.url;
+                const title = e.currentTarget.dataset.title;
+                const notes = e.currentTarget.dataset.notes;
+                currentLinkIndex = parseInt(e.currentTarget.dataset.index);
+
+                if (!url &amp;&amp; notes &amp;&amp; !e.target.closest(&#39;.edit-icon&#39;)) {
+                    notesModalTitle.textContent = title;
+                    notesModalContent.value = notes;
+                    notesModal.classList.add(&#39;show&#39;);
+                } else if (url &amp;&amp; !e.target.closest(&#39;.edit-icon&#39;)) {
+                    window.open(url, &#39;_blank&#39;);
+                }
+            });
+        });
+
+        document.querySelectorAll(&#39;.edit-icon&#39;).forEach(icon =&gt; {
+            icon.addEventListener(&#39;click&#39;, (e) =&gt; {
+                e.stopPropagation();
+                const index = parseInt(e.currentTarget.dataset.index);
+                const link = links[index];
+
+                isEditMode = true;
+                currentLinkIndex = index;
+
+                formModalTitle.textContent = &#39;ویرایش لینک&#39;;
+                addLinkButton.textContent = &#39;ذخیره تغییرات&#39;;
+
+                titleInput.value = link.title;
+                urlInput.value = link.url || &#39;&#39;;
+                categorySelect.value = link.category;
+                newCategoryInput.value = &#39;&#39;;
+                notesInput.value = link.notes || &#39;&#39;;
+
+                formModal.classList.add(&#39;show&#39;);
+            });
+        });
+    }
+
+    addLinkButton.addEventListener(&#39;click&#39;, async () =&gt; {
+        let title = titleInput.value.trim();
+        const url = urlInput.value.trim();
+        let category = categorySelect.value;
+        const newCategory = newCategoryInput.value.trim();
+        const notes = notesInput.value.trim();
+
+        if (title.length &gt; 25) {
+            title = title.substring(0, 25);
+            showMessageBox(&#39;عنوان به 25 کاراکتر محدود شد.&#39;, &#39;info&#39;);
+        }
+
+        if (!title) {
+            showMessageBox(&#39;لطفاً عنوان لینک را وارد کنید.&#39;, &#39;error&#39;);
+            return;
+        }
+
+        if (newCategory) {
+            category = newCategory;
+            if (!categories.includes(newCategory)) {
+                const { error } = await supabase
+                    .from(&#39;categories&#39;)
+                    .insert([
+                        { name: newCategory, user_id: (await supabase.auth.getUser()).data.user.id }
+                    ]);
+                if (error) {
+                    showMessageBox(`خطا در افزودن دسته‌بندی جدید: ${error.message}`, &#39;error&#39;);
+                    return;
+                }
+                categories.push(newCategory);
+                renderCategories();
+            }
+        } else if (!category) {
+            showMessageBox(&#39;لطفاً یک دسته‌بندی انتخاب کنید یا دسته‌بندی جدید وارد کنید.&#39;, &#39;error&#39;);
+            return;
+        }
+
+        if (isEditMode) {
+            const { error } = await supabase
+                .from(&#39;links&#39;)
+                .update({ title, url, category, notes })
+                .eq(&#39;id&#39;, links[currentLinkIndex].id)
+                .eq(&#39;user_id&#39;, (await supabase.auth.getUser()).data.user.id);
+            if (error) {
+                showMessageBox(`خطا در ویرایش لینک: ${error.message}`, &#39;error&#39;);
+                return;
+            }
+            showMessageBox(&#39;لینک با موفقیت ویرایش شد!&#39;, &#39;success&#39;);
+        } else {
+            const { error } = await supabase
+                .from(&#39;links&#39;)
+                .insert([
+                    { title, url, category, notes, user_id: (await supabase.auth.getUser()).data.user.id }
+                ]);
+            if (error) {
+                showMessageBox(`خطا در افزودن لینک: ${error.message}`, &#39;error&#39;);
+                return;
+            }
+            showMessageBox(&#39;لینک با موفقیت اضافه شد!&#39;, &#39;success&#39;);
+        }
+
+        renderLinks();
+        clearFormAndCloseModal();
+    });
+
+    showFormButton.addEventListener(&#39;click&#39;, () =&gt; {
+        isEditMode = false;
+        formModalTitle.textContent = &#39;افزودن لینک جدید&#39;;
+        addLinkButton.textContent = &#39;افزودن لینک&#39;;
+        clearFormAndCloseModal();
+        formModal.classList.add(&#39;show&#39;);
+    });
+
+    cancelFormButton.addEventListener(&#39;click&#39;, () =&gt; {
+        clearFormAndCloseModal();
+    });
+
+    function clearFormAndCloseModal() {
+        titleInput.value = &#39;&#39;;
+        urlInput.value = &#39;&#39;;
+        categorySelect.value = &#39;&#39;;
+        newCategoryInput.value = &#39;&#39;;
+        notesInput.value = &#39;&#39;;
+        formModal.classList.remove(&#39;show&#39;);
+    }
+
+    closeNotesModalButton.addEventListener(&#39;click&#39;, () =&gt; {
+        notesModal.classList.remove(&#39;show&#39;);
+    });
+
+    saveNotesModalButton.addEventListener(&#39;click&#39;, async () =&gt; {
+        if (currentLinkIndex !== -1) {
+            const { error } = await supabase
+                .from(&#39;links&#39;)
+                .update({ notes: notesModalContent.value.trim() })
+                .eq(&#39;id&#39;, links[currentLinkIndex].id)
+                .eq(&#39;user_id&#39;, (await supabase.auth.getUser()).data.user.id);
+            if (error) {
+                showMessageBox(`خطا در ذخیره یادداشت‌ها: ${error.message}`, &#39;error&#39;);
+                return;
+            }
+            links[currentLinkIndex].notes = notesModalContent.value.trim();
+            renderLinks(searchInput.value);
+            notesModal.classList.remove(&#39;show&#39;);
+            showMessageBox(&#39;یادداشت‌ها با موفقیت ذخیره شد!&#39;, &#39;success&#39;);
+        }
+    });
+
+    confirmDeleteBtn.addEventListener(&#39;click&#39;, async () =&gt; {
+        if (currentLinkIndex !== -1) {
+            const linkId = links[currentLinkIndex].id;
+            const { error } = await supabase
+                .from(&#39;links&#39;)
+                .delete()
+                .eq(&#39;id&#39;, linkId)
+                .eq(&#39;user_id&#39;, (await supabase.auth.getUser()).data.user.id);
+            if (error) {
+                showMessageBox(`خطا در حذف لینک: ${error.message}`, &#39;error&#39;);
+                return;
+            }
+
+            links = links.filter((_, i) =&gt; i !== currentLinkIndex);
+            renderLinks(searchInput.value);
+            confirmModal.classList.remove(&#39;show&#39;);
+            showMessageBox(&#39;لینک با موفقیت حذف شد!&#39;, &#39;success&#39;);
+        }
+        currentLinkIndex = -1;
+    });
+
+    cancelDeleteBtn.addEventListener(&#39;click&#39;, () =&gt; {
+        confirmModal.classList.remove(&#39;show&#39;);
+        currentLinkIndex = -1;
+    });
+
+    searchInput.addEventListener(&#39;click&#39;, () =&gt; {
+        renderLinks(searchInput.value);
+    });
+
+    searchButton.addEventListener(&#39;click&#39;, () =&gt; {
+        renderLinks(searchInput.value);
+    });
+
+    function showMessageBox(message, type = &#39;info&#39;) {
+        let messageBox = document.getElementById(&#39;message-box&#39;);
+        if (!messageBox) {
+            messageBox = document.createElement(&#39;div&#39;);
+            messageBox.id = &#39;message-box&#39;;
+            messageBox.className = &#39;fixed top-4 right-4 p-4 rounded-md shadow-lg text-white z-50&#39;;
+            document.body.appendChild(messageBox);
+        }
+
+        messageBox.textContent = message;
+        messageBox.style.display = &#39;block&#39;;
+
+        if (type === &#39;success&#39;) {
+            messageBox.style.backgroundColor = &#39;#4CAF50&#39;;
+        } else if (type === &#39;error&#39;) {
+            messageBox.style.backgroundColor = &#39;#f44336&#39;;
+        } else {
+            messageBox.style.backgroundColor = &#39;#2196F3&#39;;
+        }
+
+        setTimeout(() =&gt; {
+            messageBox.style.display = &#39;none&#39;;
+        }, 3000);
+    }
+
+    renderCategories();
+    renderLinks();
+&lt;/script&gt;
+&lt;div id=&quot;message-box&quot; class=&quot;hidden&quot;&gt;&lt;/div&gt;
+</code></pre>
 </body>
 </html>
