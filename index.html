@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لینک‌های مفید من</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+        body {
+            background: linear-gradient(to bottom right, #1e293b, #2d3748);
+            min-height: 100vh;
+            font-family: 'Vazirmatn', sans-serif;
+            color: #e2e8f0;
+        }
+        .link-card {
+            background: #2d3748;
+            border: 1px solid #4b5563;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            padding-top: 20px;
+            padding-left: 40px;
+            padding-right: 24px;
+            padding-bottom: 12px;
+        }
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            background: #3b4a6b;
+        }
+        .form-container {
+            background: #2d3748;
+            border: 1px solid #4b5563;
+            transition: box-shadow 0.3s ease;
+        }
+        .form-container:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        input, select, textarea {
+            background: #1e293b;
+            border: 1px solid #4b5563;
+            color: #e2e8f0;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #6366f1;
+            outline: none;
+            ring: 2px #6366f1;
+        }
+        button {
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .delete-btn {
+            transition: color 0.3s ease;
+            font-size: 1.5rem;
+        }
+        .delete-btn:hover {
+            color: #ef4444;
+        }
+        .notes-text {
+            color: #94a3b8;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-height: 60px;
+        }
+        .notes-text.scrollable {
+            overflow-y: auto;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .notes-display {
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #1e293b;
+            border-radius: 8px;
+            color: #e2e8f0;
+        }
+        #notes-modal .form-container {
+            max-width: 600px;
+            width: 90%;
+        }
+        .icon-group {
+            position: absolute;
+            top: 0px;
+            left: 10px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        .edit-icon {
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.3s ease;
+        }
+        .edit-icon:hover {
+            color: #6366f1;
+        }
+        .link-card h3 {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-6">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-white">لینک‌های مفید من</h1>
+        <p class="text-lg text-gray-300 mt-2">مجموعه‌ای از منابع مورد علاقه من</p>
+    </div>
+    <div id="auth-container" class="max-w-md w-full mb-6">
+        <div id="auth-form" class="form-container rounded-xl p-6 shadow-lg">
+            <h2 class="text-xl font-semibold text-white mb-4">ورود / ثبت‌نام</h2>
+            <div class="space-y-4">
+                <input id="email" type="email" placeholder="ایمیل" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
+                <input id="password" type="password" placeholder="رمز عبور" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
+                <div class="flex gap-4">
+                    <button id="sign-in-btn" class="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">ورود</button>
+                    <button id="sign-up-btn" class="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">ثبت‌نام</button>
+                    <button id="sign-out-btn" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700 hidden">خروج</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="max-w-md w-full mb-6 flex gap-2">
+        <input id="search-input" type="text" placeholder="جستجوی لینک‌ها..." class="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right bg-[#1e293b] border-[#4b5563]">
+        <button id="search-btn" class="bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">جستجو</button>
+    </div>
+    <div class="max-w-md w-full mb-6">
+        <button id="show-form-btn" class="w-full bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">افزودن لینک جدید</button>
+    </div>
+    <div id="form-modal" class="modal">
+        <div class="form-container rounded-xl p-6 shadow-lg max-w-md w-full">
+            <h2 id="form-modal-title" class="text-xl font-semibold text-white mb-4">افزودن لینک جدید</h2>
+            <div class="space-y-4">
+                <input id="link-title" type="text" placeholder="عنوان لینک" maxlength="25" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
+                <input id="link-url" type="url" placeholder="آدرس لینک (اختیاری)" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
+                <select id="link-category" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
+                    <option value="">انتخاب دسته‌بندی</option>
+                </select>
+                <input id="new-category" type="text" placeholder="دسته‌بندی جدید (اختیاری)" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right">
+                <textarea id="link-notes" placeholder="یادداشت‌ها (اختیاری)" class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right h-24"></textarea>
+                <div class="flex gap-4">
+                    <button id="add-link" class="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">افزودن لینک</button>
+                    <button id="cancel-form" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">لغو</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="notes-modal" class="modal">
+        <div class="form-container rounded-xl p-6 shadow-lg max-w-md w-full">
+            <h2 id="notes-modal-title" class="text-xl font-semibold text-white mb-4"></h2>
+            <textarea id="notes-modal-content" class="notes-display w-full mb-4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-right" rows="10"></textarea>
+            <div class="flex gap-4">
+                <button id="save-notes-modal" class="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700">ذخیره یادداشت‌ها</button>
+                <button id="close-notes-modal" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">بستن</button>
+            </div>
+        </div>
+    </div>
+    <div id="confirm-modal" class="modal">
+        <div class="form-container rounded-xl p-6 shadow-lg max-w-sm w-full text-center">
+            <h2 class="text-xl font-semibold text-white mb-4">تایید حذف</h2>
+            <p class="text-gray-300 mb-6">آیا مطمئن هستید که می‌خواهید این لینک را حذف کنید؟</p>
+            <div class="flex gap-4 justify-center">
+                <button id="confirm-delete-btn" class="flex-1 bg-red-600 text-white p-2 rounded-md hover:bg-red-700">حذف</button>
+                <button id="cancel-delete-btn" class="flex-1 bg-gray-600 text-white p-2 rounded-md hover:bg-gray-700">لغو</button>
+            </div>
+        </div>
+    </div>
+    <div id="link-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full">
+    </div>
+    <script>
+        const supabaseUrl = 'https://mmtbzcorylzlomlacfvg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdGJ6Y29yeWx6bG9tbGFjZnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5OTI0NzcsImV4cCI6MjA2ODU2ODQ3N30.uqvMRuot0I-iRmwIO7GSfp4bqqUBrZcjjV5ExHlN0pk';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let links = [];
+        let categories = [];
+        const defaultCategories = ["یادداشتها", "عمومی", "کاری", "شخصی"];
+        const linkContainer = document.getElementById('link-container');
+        const titleInput = document.getElementById('link-title');
+        const urlInput = document.getElementById('link-url');
+        const categorySelect = document.getElementById('link-category');
+        const newCategoryInput = document.getElementById('new-category');
+        const notesInput = document.getElementById('link-notes');
+        const addLinkButton = document.getElementById('add-link');
+        const showFormButton = document.getElementById('show-form-btn');
+        const cancelFormButton = document.getElementById('cancel-form');
+        const formModal = document.getElementById('form-modal');
+        const formModalTitle = document.getElementById('form-modal-title');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-btn');
+        const notesModal = document.getElementById('notes-modal');
+        const notesModalTitle = document.getElementById('notes-modal-title');
+        const notesModalContent = document.getElementById('notes-modal-content');
+        const closeNotesModalButton = document.getElementById('close-notes-modal');
+        const saveNotesModalButton = document.getElementById('save-notes-modal');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const signInBtn = document.getElementById('sign-in-btn');
+        const signUpBtn = document.getElementById('sign-up-btn');
+        const signOutBtn = document.getElementById('sign-out-btn');
+        const authContainer = document.getElementById('auth-container');
+
+        let currentLinkIndex = -1;
+        let isEditMode = false;
+
+        async function ensureDefaultCategories() {
+            const { data: existingCategories, error } = await supabase
+                .from('categories')
+                .select('name')
+                .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+            if (error) {
+                showMessageBox(`خطا در بررسی دسته‌بندی‌ها: ${error.message}`, 'error');
+                return;
+            }
+            const existingCategoryNames = existingCategories ? existingCategories.map(cat => cat.name) : [];
+            const missingCategories = defaultCategories.filter(cat => !existingCategoryNames.includes(cat));
+            if (missingCategories.length > 0) {
+                const { error: insertError } = await supabase
+                    .from('categories')
+                    .insert(
+                        missingCategories.map(name => ({
+                            name,
+                            user_id: (await supabase.auth.getUser()).data.user.id
+                        }))
+                    );
+                if (insertError) {
+                    showMessageBox(`خطا در افزودن دسته‌بندی‌های پیش‌فرض: ${insertError.message}`, 'error');
+                }
+            }
+        }
+
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
+            if (session) {
+                signInBtn.classList.add('hidden');
+                signUpBtn.classList.add('hidden');
+                signOutBtn.classList.remove('hidden');
+                authContainer.classList.add('hidden');
+                await ensureDefaultCategories();
+                renderCategories();
+                renderLinks();
+                supabase
+                    .channel('links')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'links', filter: `user_id=eq.${session.user.id}` }, payload => {
+                        renderLinks(searchInput.value);
+                    })
+                    .subscribe();
+            }
+        });
+
+        signUpBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            if (!email || !password) {
+                showMessageBox('لطفاً ایمیل و رمز عبور را وارد کنید.', 'error');
+                return;
+            }
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) {
+                showMessageBox(`خطا در ثبت‌نام: ${error.message}`, 'error');
+            } else {
+                showMessageBox('ثبت‌نام موفق! لطفاً ایمیل خود را تأیید کنید.', 'success');
+                await ensureDefaultCategories();
+                renderCategories();
+            }
+        });
+
+        signInBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            if (!email || !password) {
+                showMessageBox('لطفاً ایمیل و رمز عبور را وارد کنید.', 'error');
+                return;
+            }
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                showMessageBox(`خطا در ورود: ${error.message}`, 'error');
+            } else {
+                showMessageBox('ورود موفق!', 'success');
+                signInBtn.classList.add('hidden');
+                signUpBtn.classList.add('hidden');
+                signOutBtn.classList.remove('hidden');
+                authContainer.classList.add('hidden');
+                await ensureDefaultCategories();
+                renderCategories();
+                renderLinks();
+            }
+        });
+
+        signOutBtn.addEventListener('click', async () => {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                showMessageBox(`خطا در خروج: ${error.message}`, 'error');
+            } else {
+                showMessageBox('با موفقیت خارج شدید!', 'success');
+                signInBtn.classList.remove('hidden');
+                signUpBtn.classList.remove('hidden');
+                signOutBtn.classList.add('hidden');
+                authContainer.classList.remove('hidden');
+                linkContainer.innerHTML = '';
+                categories = [];
+                categorySelect.innerHTML = '<option value="">انتخاب دسته‌بندی</option>';
+            }
+        });
+
+        async function renderCategories() {
+            categorySelect.innerHTML = '<option value="">انتخاب دسته‌بندی</option>';
+            const { data, error } = await supabase
+                .from('categories')
+                .select('name')
+                .eq('user_id', (await supabase.auth.getUser()).data.user.id)
+                .order('name', { ascending: true });
+            if (error) {
+                showMessageBox(`خطا در بارگذاری دسته‌بندی‌ها: ${error.message}`, 'error');
+                return;
+            }
+            categories = data ? data.map(cat => cat.name) : [];
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        async function renderLinks(searchTerm = '') {
+            linkContainer.innerHTML = '';
+            const { data, error } = await supabase
+                .from('links')
+                .select('*')
+                .eq('user_id', (await supabase.auth.getUser()).data.user.id)
+                .order('created_at', { ascending: false });
+            if (error) {
+                showMessageBox(`خطا در بارگذاری لینک‌ها: ${error.message}`, 'error');
+                return;
+            }
+            links = data || [];
+            const filteredLinks = searchTerm
+                ? links.filter(link => 
+                    link.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (link.url && link.url.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (link.notes && link.notes.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    link.category.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                : links;
+
+            categories.forEach(category => {
+                const categoryLinks = filteredLinks.filter(link => link.category === category);
+                if (categoryLinks.length > 0) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'flex flex-col gap-4';
+                    categoryDiv.innerHTML = `<h2 class="text-2xl font-semibold text-white">${category}</h2>`;
+                    categoryLinks.forEach((link, index) => {
+                        const linkElement = document.createElement('div');
+                        linkElement.className = 'link-card rounded-lg shadow-md hover:shadow-lg flex justify-between items-start';
+                        linkElement.dataset.title = link.title;
+                        linkElement.dataset.url = link.url || '';
+                        linkElement.dataset.notes = link.notes || '';
+                        linkElement.dataset.index = links.indexOf(link);
+                        linkElement.dataset.id = link.id;
+
+                        const notesParagraph = link.notes ? `<p class="text-sm notes-text mt-2">${link.notes}</p>` : '';
+                        const displayedTitle = link.title.length > 25 ? link.title.substring(0, 25) + '...' : link.title;
+
+                        const editIconHtml = `
+                            <i class="fa-solid fa-pencil edit-icon" data-index="${links.indexOf(link)}"></i>
+                        `;
+
+                        linkElement.innerHTML = `
+                            <div class="icon-group">
+                                <button class="delete-btn text-gray-300 hover:text-red-500" data-index="${links.indexOf(link)}" data-category="${category}" data-id="${link.id}">×</button>
+                                ${editIconHtml}
+                            </div>
+                            <div class="flex-1">
+                                <a href="${link.url || '#'}" class="block" ${link.url ? 'onclick="event.preventDefault();"' : ''}>
+                                    <h3 class="text-lg font-medium text-white">${displayedTitle}</h3>
+                                </a>
+                                ${notesParagraph}
+                            </div>
+                        `;
+                        categoryDiv.appendChild(linkElement);
+
+                        if (link.notes && link.notes.length > 160) {
+                            const pElement = linkElement.querySelector('.notes-text');
+                            if (pElement) {
+                                pElement.classList.add('scrollable');
+                            }
+                        }
+                    });
+                    linkContainer.appendChild(categoryDiv);
+                }
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const indexToDelete = parseInt(e.target.dataset.index);
+                    currentLinkIndex = indexToDelete;
+                    confirmModal.classList.add('show');
+                });
+            });
+
+            document.querySelectorAll('.link-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const url = e.currentTarget.dataset.url;
+                    const title = e.currentTarget.dataset.title;
+                    const notes = e.currentTarget.dataset.notes;
+                    currentLinkIndex = parseInt(e.currentTarget.dataset.index);
+
+                    if (!url && notes && !e.target.closest('.edit-icon')) {
+                        notesModalTitle.textContent = title;
+                        notesModalContent.value = notes;
+                        notesModal.classList.add('show');
+                    } else if (url && !e.target.closest('.edit-icon')) {
+                        window.open(url, '_blank');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.edit-icon').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    const link = links[index];
+
+                    isEditMode = true;
+                    currentLinkIndex = index;
+
+                    formModalTitle.textContent = 'ویرایش لینک';
+                    addLinkButton.textContent = 'ذخیره تغییرات';
+
+                    titleInput.value = link.title;
+                    urlInput.value = link.url || '';
+                    categorySelect.value = link.category;
+                    newCategoryInput.value = '';
+                    notesInput.value = link.notes || '';
+
+                    formModal.classList.add('show');
+                });
+            });
+        }
+
+        addLinkButton.addEventListener('click', async () => {
+            let title = titleInput.value.trim();
+            const url = urlInput.value.trim();
+            let category = categorySelect.value;
+            const newCategory = newCategoryInput.value.trim();
+            const notes = notesInput.value.trim();
+
+            if (title.length > 25) {
+                title = title.substring(0, 25);
+                showMessageBox('عنوان به 25 کاراکتر محدود شد.', 'info');
+            }
+
+            if (!title) {
+                showMessageBox('لطفاً عنوان لینک را وارد کنید.', 'error');
+                return;
+            }
+
+            if (newCategory) {
+                category = newCategory;
+                if (!categories.includes(newCategory)) {
+                    const { error } = await supabase
+                        .from('categories')
+                        .insert([
+                            { name: newCategory, user_id: (await supabase.auth.getUser()).data.user.id }
+                        ]);
+                    if (error) {
+                        showMessageBox(`خطا در افزودن دسته‌بندی جدید: ${error.message}`, 'error');
+                        return;
+                    }
+                    categories.push(newCategory);
+                    renderCategories();
+                }
+            } else if (!category) {
+                showMessageBox('لطفاً یک دسته‌بندی انتخاب کنید یا دسته‌بندی جدید وارد کنید.', 'error');
+                return;
+            }
+
+            if (isEditMode) {
+                const { error } = await supabase
+                    .from('links')
+                    .update({ title, url, category, notes })
+                    .eq('id', links[currentLinkIndex].id)
+                    .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+                if (error) {
+                    showMessageBox(`خطا در ویرایش لینک: ${error.message}`, 'error');
+                    return;
+                }
+                showMessageBox('لینک با موفقیت ویرایش شد!', 'success');
+            } else {
+                const { error } = await supabase
+                    .from('links')
+                    .insert([
+                        { title, url, category, notes, user_id: (await supabase.auth.getUser()).data.user.id }
+                    ]);
+                if (error) {
+                    showMessageBox(`خطا در افزودن لینک: ${error.message}`, 'error');
+                    return;
+                }
+                showMessageBox('لینک با موفقیت اضافه شد!', 'success');
+            }
+
+            renderLinks();
+            clearFormAndCloseModal();
+        });
+
+        showFormButton.addEventListener('click', () => {
+            isEditMode = false;
+            formModalTitle.textContent = 'افزودن لینک جدید';
+            addLinkButton.textContent = 'افزودن لینک';
+            clearFormAndCloseModal();
+            formModal.classList.add('show');
+        });
+
+        cancelFormButton.addEventListener('click', () => {
+            clearFormAndCloseModal();
+        });
+
+        function clearFormAndCloseModal() {
+            titleInput.value = '';
+            urlInput.value = '';
+            categorySelect.value = '';
+            newCategoryInput.value = '';
+            notesInput.value = '';
+            formModal.classList.remove('show');
+        }
+
+        closeNotesModalButton.addEventListener('click', () => {
+            notesModal.classList.remove('show');
+        });
+
+        saveNotesModalButton.addEventListener('click', async () => {
+            if (currentLinkIndex !== -1) {
+                const { error } = await supabase
+                    .from('links')
+                    .update({ notes: notesModalContent.value.trim() })
+                    .eq('id', links[currentLinkIndex].id)
+                    .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+                if (error) {
+                    showMessageBox(`خطا در ذخیره یادداشت‌ها: ${error.message}`, 'error');
+                    return;
+                }
+                links[currentLinkIndex].notes = notesModalContent.value.trim();
+                renderLinks(searchInput.value);
+                notesModal.classList.remove('show');
+                showMessageBox('یادداشت‌ها با موفقیت ذخیره شد!', 'success');
+            }
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (currentLinkIndex !== -1) {
+                const linkId = links[currentLinkIndex].id;
+                const { error } = await supabase
+                    .from('links')
+                    .delete()
+                    .eq('id', linkId)
+                    .eq('user_id', (await supabase.auth.getUser()).data.user.id);
+                if (error) {
+                    showMessageBox(`خطا در حذف لینک: ${error.message}`, 'error');
+                    return;
+                }
+
+                links = links.filter((_, i) => i !== currentLinkIndex);
+                renderLinks(searchInput.value);
+                confirmModal.classList.remove('show');
+                showMessageBox('لینک با موفقیت حذف شد!', 'success');
+            }
+            currentLinkIndex = -1;
+        });
+
+        cancelDeleteBtn.addEventListener('click', () => {
+            confirmModal.classList.remove('show');
+            currentLinkIndex = -1;
+        });
+
+        searchInput.addEventListener('input', () => {
+            renderLinks(searchInput.value);
+        });
+
+        searchButton.addEventListener('click', () => {
+            renderLinks(searchInput.value);
+        });
+
+        function showMessageBox(message, type = 'info') {
+            let messageBox = document.getElementById('message-box');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'message-box';
+                messageBox.className = 'fixed top-4 right-4 p-4 rounded-md shadow-lg text-white z-50';
+                document.body.appendChild(messageBox);
+            }
+
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+
+            if (type === 'success') {
+                messageBox.style.backgroundColor = '#4CAF50';
+            } else if (type === 'error') {
+                messageBox.style.backgroundColor = '#f44336';
+            } else {
+                messageBox.style.backgroundColor = '#2196F3';
+            }
+
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000);
+        }
+
+        renderCategories();
+        renderLinks();
+    </script>
+    <div id="message-box" class="hidden"></div>
+</body>
+</html>
